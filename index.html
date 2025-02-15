@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Healthcare Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #007BFF;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+        input[type="file"], input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI-Powered Healthcare Analysis</h1>
+        <form id="healthForm">
+            <label for="imageInput">Upload Medical Image:</label>
+            <input type="file" id="imageInput" accept="image/*" >
+
+            <label for="symptoms">Enter Symptoms:</label>
+            <textarea id="symptoms" rows="4" placeholder="E.g., Fever, cough, fatigue..." ></textarea>
+
+            <button type="button" onclick="analyzeData()">Analyze</button>
+        </form>
+
+        <div id="results" class="results" style="display: none;">
+            <h3>Analysis Results:</h3>
+            <p id="resultText">Processing...</p>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeData() {
+            const imageInput = document.getElementById('imageInput');
+            const symptoms = document.getElementById('symptoms').value;
+            const resultsDiv = document.getElementById('results');
+            const resultText = document.getElementById('resultText');
+
+            if (!imageInput.files[0] || !symptoms) {
+                alert('Please upload an image and enter symptoms.');
+                return;
+            }
+
+            // Show loading text
+            resultsDiv.style.display = 'block';
+            resultText.textContent = 'Processing...';
+
+            const formData = new FormData();
+            formData.append('image', imageInput.files[0]);
+            formData.append('symptoms', symptoms);
+
+            try {
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                resultText.textContent = `Prediction: ${data.prediction}\nDetails: ${data.details}`;
+                  
+            } catch (error) {
+                resultText.textContent = 'An error occurred: ' + error.message;
+            }
+        }
+    </script>
+    <script src="script.js"></script>
+
+</body>
+</html>
